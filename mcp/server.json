@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.neoreader/neoreader-qr",
+  "name": "io.github.NeoReader/neoreader-qr",
   "title": "NeoReader QR",
   "description": "Create dynamic QR codes, change where they go and read scan stats from your AI assistant.",
   "version": "1.0.0",
   "websiteUrl": "https://neoreader.com/developers",
   "repository": {
-    "url": "https://github.com/neoreader/neoreader-docs",
+    "url": "https://github.com/NeoReader/neoreader-docs",
     "source": "github"
   },
   "icons": [
