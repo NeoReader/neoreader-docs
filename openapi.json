@@ -4,24 +4,24 @@
         "title": "NeoReader QR Code API",
         "version": "1.0.0",
         "summary": "Create, change and measure dynamic QR codes.",
-        "description": "A free QR code generator API for dynamic QR codes. A dynamic code holds a short link, neoreader.com/q/SLUG, that redirects to a destination you can change at any time. Create, list, update and delete codes and read scan statistics. Scans are counted without storing IP addresses. The same codes can be managed by an AI assistant through the MCP server at http://127.0.0.1:8123/mcp.",
-        "termsOfService": "http://127.0.0.1:8123/terms",
+        "description": "A free QR code generator API for dynamic QR codes. A dynamic code holds a short link, neoreader.com/q/SLUG, that redirects to a destination you can change at any time. Create, list, update and delete codes and read scan statistics. Scans are counted without storing IP addresses. The same codes can be managed by an AI assistant through the MCP server at https://neoreader.com/mcp.",
+        "termsOfService": "https://neoreader.com/terms",
         "contact": {
             "name": "NeoReader",
-            "url": "http://127.0.0.1:8123/contact"
+            "url": "https://neoreader.com/contact"
         },
         "license": {
             "name": "NeoReader Terms",
-            "url": "http://127.0.0.1:8123/terms"
+            "url": "https://neoreader.com/terms"
         }
     },
     "externalDocs": {
         "description": "NeoReader developer documentation",
-        "url": "http://127.0.0.1:8123/developers"
+        "url": "https://neoreader.com/developers"
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8123/api/v1"
+            "url": "https://neoreader.com/api/v1"
         }
     ],
     "security": [
@@ -444,7 +444,7 @@
             "bearerAuth": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "An API token made under Account, then API Tokens, on http://127.0.0.1:8123. Send it as Authorization: Bearer YOUR_TOKEN."
+                "description": "An API token made under Account, then API Tokens, on https://neoreader.com. Send it as Authorization: Bearer YOUR_TOKEN."
             }
         },
         "responses": {
@@ -607,7 +607,7 @@
                     "short_url": {
                         "type": "string",
                         "format": "uri",
-                        "example": "http://127.0.0.1:8123/q/k7Xp2m",
+                        "example": "https://neoreader.com/q/k7Xp2m",
                         "description": "The address printed in the QR code."
                     },
                     "title": {
