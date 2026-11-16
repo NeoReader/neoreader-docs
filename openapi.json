@@ -4,24 +4,24 @@
         "title": "NeoReader QR Code API",
         "version": "1.0.0",
         "summary": "Create, change and measure dynamic QR codes.",
-        "description": "A free QR code generator API for dynamic QR codes. A dynamic code holds a short link, neoreader.com/q/SLUG, that redirects to a destination you can change at any time. Create, list, update and delete codes and read scan statistics. Scans are counted without storing IP addresses. The same codes can be managed by an AI assistant through the MCP server at https://neoreader.com/mcp.",
-        "termsOfService": "https://neoreader.com/terms",
+        "description": "A free QR code generator API for dynamic QR codes. A dynamic code holds a short link, neoreader.com/q/SLUG, that redirects to a destination you can change at any time. Create, list, update and delete codes and read scan statistics. Scans are counted without storing IP addresses. The same codes can be managed by an AI assistant through the MCP server at http://127.0.0.1:8123/mcp.",
+        "termsOfService": "http://127.0.0.1:8123/terms",
         "contact": {
             "name": "NeoReader",
-            "url": "https://neoreader.com/contact"
+            "url": "http://127.0.0.1:8123/contact"
         },
         "license": {
             "name": "NeoReader Terms",
-            "url": "https://neoreader.com/terms"
+            "url": "http://127.0.0.1:8123/terms"
         }
     },
     "externalDocs": {
         "description": "NeoReader developer documentation",
-        "url": "https://neoreader.com/developers"
+        "url": "http://127.0.0.1:8123/developers"
     },
     "servers": [
         {
-            "url": "https://neoreader.com/api/v1"
+            "url": "http://127.0.0.1:8123/api/v1"
         }
     ],
     "security": [
@@ -113,6 +113,14 @@
                         }
                     },
                     {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Only codes of this type: url (redirects to a link) or one of the hosted page types.",
+                        "schema": {
+                            "$ref": "#/components/schemas/CodeType"
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "description": "Codes per page.",
@@ -165,7 +173,7 @@
                     "Codes"
                 ],
                 "summary": "Create a Code",
-                "description": "Creates a dynamic code. Title and destination are required. The destination must be a full http:// or https:// address, or a mailto: or tel: link. Links to another NeoReader short link and private network addresses are refused.",
+                "description": "Creates a dynamic code. A code of type url (the default) needs a title and a destination: a full http:// or https:// address, or a mailto: or tel: link. Links to another NeoReader short link and private network addresses are refused. Any other type opens a page NeoReader hosts, built from content (see the CodeContent schema); then destination is not used. Pages that need an uploaded file (a PDF, a picture gallery, a photo or a logo) are made in the account area, so through the API you can create card, links, menu and pdf (with a link to the file), location, app and video, but not gallery.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -173,13 +181,32 @@
                             "schema": {
                                 "$ref": "#/components/schemas/CodeInput"
                             },
-                            "example": {
-                                "title": "Spring menu",
-                                "destination": "https://example.com/menu",
-                                "folder": "Restaurant",
-                                "utm": {
-                                    "utm_source": "qr",
-                                    "utm_medium": "print"
+                            "examples": {
+                                "link": {
+                                    "summary": "A link",
+                                    "value": {
+                                        "title": "Spring menu",
+                                        "destination": "https://example.com/menu",
+                                        "folder": "Restaurant",
+                                        "utm": {
+                                            "utm_source": "qr",
+                                            "utm_medium": "print"
+                                        }
+                                    }
+                                },
+                                "card": {
+                                    "summary": "A business card page",
+                                    "value": {
+                                        "title": "Ada card",
+                                        "type": "card",
+                                        "content": {
+                                            "first_name": "Ada",
+                                            "last_name": "Lovelace",
+                                            "company": "Analytical Engines",
+                                            "phone": "+44 20 7946 0000",
+                                            "email": "ada@example.com"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -272,7 +299,7 @@
                     "Codes"
                 ],
                 "summary": "Update a Code",
-                "description": "Changes the fields you send and leaves the rest alone. The slug and short URL never change, so printed codes keep working. A blocked code cannot be turned back on.",
+                "description": "Changes the fields you send and leaves the rest alone. For a hosted page, the content fields you send replace those fields and the rest of the page stays, including files uploaded in the account area (send a field as null to remove it). You can change type too; fields the two types share are kept. Switching back to url needs a destination. The slug and short URL never change, so printed codes keep working. A blocked code cannot be turned back on.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -417,7 +444,7 @@
             "bearerAuth": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "An API token made under Account, then API Tokens, on https://neoreader.com. Send it as Authorization: Bearer YOUR_TOKEN."
+                "description": "An API token made under Account, then API Tokens, on http://127.0.0.1:8123. Send it as Authorization: Bearer YOUR_TOKEN."
             }
         },
         "responses": {
@@ -536,6 +563,26 @@
                     }
                 }
             },
+            "CodeType": {
+                "type": "string",
+                "enum": [
+                    "url",
+                    "pdf",
+                    "card",
+                    "links",
+                    "menu",
+                    "location",
+                    "app",
+                    "gallery",
+                    "video"
+                ],
+                "description": "url redirects to the destination. The others open a page NeoReader hosts."
+            },
+            "CodeContent": {
+                "type": "object",
+                "description": "The fields of a hosted page. Unknown fields are dropped. Fields marked (file) point at an upload made in the account area: the API cannot add a file, but it keeps the files a page already has. card: first_name, last_name, title, company, bio, phone, email, website, address, socials (list of label and url), photo (file); a name and a phone or email are required. links: title, bio, links (list of label and url, 1 to 30), avatar (file). menu: name, title, description, website, url (link to the menu), file (file), logo (file), direct. pdf: title, description, company, website, url (link to the PDF), file (file), logo (file), direct; a file or a url is required. location: name, address, lat, lng, description, phone, website, logo (file); an address or both coordinates are required. app: name, developer, description, ios_url, android_url, fallback_url, logo (file); at least one link is required. video: headline, description, videos (list of title and url, 1 to 10), button_label, button_url, logo (file). gallery: headline, description, images (file list, 1 to 20), button_label, button_url, logo (file); account area only. Every link must be a full https:// or http:// address.",
+                "additionalProperties": true
+            },
             "Code": {
                 "type": "object",
                 "properties": {
@@ -543,17 +590,35 @@
                         "type": "string",
                         "example": "k7Xp2m"
                     },
+                    "type": {
+                        "$ref": "#/components/schemas/CodeType"
+                    },
+                    "content": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CodeContent"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "The page fields for a hosted type, otherwise null."
+                    },
                     "short_url": {
                         "type": "string",
                         "format": "uri",
-                        "example": "https://neoreader.com/q/k7Xp2m",
+                        "example": "http://127.0.0.1:8123/q/k7Xp2m",
                         "description": "The address printed in the QR code."
                     },
                     "title": {
                         "type": "string"
                     },
                     "destination": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "null for a hosted page."
                     },
                     "folder": {
                         "type": [
@@ -615,17 +680,31 @@
             },
             "CodeInput": {
                 "type": "object",
-                "description": "Title and destination are required when creating a code.",
+                "description": "Title is required when creating a code, and so is destination when the type is url.",
                 "properties": {
                     "title": {
                         "type": "string",
                         "maxLength": 120,
                         "description": "Only you see it."
                     },
+                    "type": {
+                        "$ref": "#/components/schemas/CodeType"
+                    },
+                    "content": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/CodeContent"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "description": "The page fields for a hosted type."
+                    },
                     "destination": {
                         "type": "string",
                         "maxLength": 2000,
-                        "description": "A full https:// or http:// address, or a mailto: or tel: link."
+                        "description": "For type url: a full https:// or http:// address, or a mailto: or tel: link."
                     },
                     "folder": {
                         "type": [

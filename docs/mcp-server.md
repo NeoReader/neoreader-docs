@@ -24,9 +24,9 @@ NeoReader runs a hosted [Model Context Protocol](https://modelcontextprotocol.io
 
 | Tool | Changes data | What it does |
 | --- | --- | --- |
-| `list_codes` | No | Lists your codes, newest first. Filter by search word, folder or status. Start here: the slug in each result is what the other tools need. |
-| `create_code` | Yes | Makes a dynamic code from a title and a destination. Optional folder, start and expiry dates and scan limit. Returns the slug, the short URL and a `design_url` where you style the code and download the image. |
-| `update_code` | Yes | Changes the destination, title, folder, expiry or on/off state. Send only the fields to change. |
+| `list_codes` | No | Lists your codes, newest first. Filter by search word, folder, status or type. Start here: the slug in each result is what the other tools need. |
+| `create_code` | Yes | Makes a dynamic code from a title and a destination, or a hosted page (business card, link list, menu, PDF link, location, app or video) from a `type` and its `content`. Optional folder, start and expiry dates and scan limit. Returns the slug, the short URL and a `design_url` where you style the code and download the image. |
+| `update_code` | Yes | Changes the destination, type, page content, title, folder, expiry or on/off state. Send only the fields to change. |
 | `get_code_stats` | No | Scan totals and breakdowns for the last N days. |
 | `pause_code` | Yes | Stops a code redirecting without deleting it. |
 | `delete_code` | Yes, destructive | Deletes a code and its scan history for good. Marked as destructive so assistants ask first. |

@@ -18,7 +18,7 @@ The base URL is `https://neoreader.com/api/v1`. Every request needs the `Authori
 
 `GET /codes`
 
-Optional query parameters: `q` searches title, slug and destination; `folder` matches a folder name; `status` is one of `active`, `paused`, `blocked`, `expired`, `not_started` or `limit`; `per_page` is 1 to 100 (default 25); `page` picks the page.
+Optional query parameters: `q` searches title, slug and destination; `folder` matches a folder name; `status` is one of `active`, `paused`, `blocked`, `expired`, `not_started` or `limit`; `type` is `url` or a hosted page type; `per_page` is 1 to 100 (default 25); `page` picks the page.
 
 ```sh
 curl "https://neoreader.com/api/v1/codes?status=active&folder=Restaurant&per_page=10" \
@@ -31,7 +31,7 @@ Examples: [cURL](../examples/curl/list-codes.sh), [Node.js](../examples/node/lis
 
 `POST /codes`
 
-`title` and `destination` are required. Returns `201` with the code.
+`title` is required, and so is `destination` for the default type `url`. For a hosted page send `type` and `content` instead (see [Hosted pages](#hosted-pages)). Returns `201` with the code.
 
 ```sh
 curl -X POST https://neoreader.com/api/v1/codes \
@@ -47,7 +47,9 @@ Examples: [cURL](../examples/curl/create-code.sh), [Node.js](../examples/node/cr
 | Field | Type | Notes |
 | --- | --- | --- |
 | `title` | string | Up to 120 characters. Only you see it. |
-| `destination` | string | Up to 2,000 characters. A full `https://` or `http://` address, or a `mailto:` or `tel:` link. Links to another NeoReader short link and private network addresses are refused. |
+| `type` | string | `url` (the default) redirects to the destination. The other types open a page NeoReader hosts. Change it any time; the printed code stays the same. |
+| `content` | object or null | The page fields for a hosted type (see [Hosted pages](#hosted-pages)). `null` for type `url`. |
+| `destination` | string | For type `url`, up to 2,000 characters. It is `null` in responses for a hosted page. A full `https://` or `http://` address, or a `mailto:` or `tel:` link. Links to another NeoReader short link and private network addresses are refused. |
 | `folder` | string or null | Up to 60 characters. |
 | `is_active` | boolean | `false` pauses the code. A blocked code cannot be turned back on. |
 | `starts_at`, `expires_at` | date and time or null | ISO 8601, for example `2026-12-31T23:59:00Z`. The expiry must be after the start. |
@@ -56,6 +58,32 @@ Examples: [cURL](../examples/curl/create-code.sh), [Node.js](../examples/node/cr
 | `utm` | object or null | `utm_source`, `utm_medium` and `utm_campaign`, added to the destination on every scan. |
 
 Responses also hold `slug`, `short_url`, `status`, `scans_count`, `last_scanned_at`, `created_at` and `updated_at`. `status` is one of `active`, `paused`, `blocked`, `not_started`, `expired` or `limit`.
+
+## Hosted pages
+
+A code of type `url` redirects. Every other type opens a small mobile page that NeoReader hosts at the same short link, with no ads and no cookies. Scans are counted the same way, and password, schedule, expiry and scan limit work as they do for redirects. On an update, only the content fields you send change; send a field as `null` to remove it. Every link must be a full `https://` or `http://` address.
+
+| Type | Page | Content fields |
+| --- | --- | --- |
+| `card` | Business card with a Save Contact button | `first_name`, `last_name`, `title`, `company`, `bio`, `phone`, `email`, `website`, `address`, `socials` (list of `label` and `url`). A name and a phone or email are required. |
+| `links` | Link list | `title` (required), `bio`, `links` (list of `label` and `url`, 1 to 30, required). |
+| `menu` | Menu | `name` (required), `title`, `description`, `website`, `url` (a link to the menu). |
+| `pdf` | PDF viewer with a download button | `title` (required), `description`, `company`, `website`, `url` (a link to the PDF). |
+| `location` | Google, Apple and Waze map links | `name` (required), `address`, `lat`, `lng`, `description`, `phone`, `website`. An address or both coordinates are required. |
+| `app` | App Store and Google Play, by device | `name` (required), `developer`, `description`, `ios_url`, `android_url`, `fallback_url`. At least one link is required. |
+| `video` | YouTube or Vimeo videos | `headline` (required), `description`, `videos` (list of `title` and `url`, 1 to 10, required), `button_label` and `button_url`. |
+| `gallery` | Image gallery | Account area only: it needs uploaded pictures. |
+
+Files are made in your account area, not through the API: a PDF upload, gallery pictures, a card photo and a page logo. Through the API and the MCP server you can create `card`, `links`, `menu` and `pdf` (with a link to the file), `location`, `app` and `video` pages, but not `gallery`. You can update any page, and it keeps the files it already has.
+
+```sh
+curl -X POST https://neoreader.com/api/v1/codes \
+  -H "Authorization: Bearer $NEOREADER_TOKEN" -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Ada card","type":"card","content":{"first_name":"Ada","last_name":"Lovelace","company":"Analytical Engines","phone":"+44 20 7946 0000","email":"ada@example.com"}}'
+```
+
+The response has `"type": "card"`, `"destination": null` and the `content` you sent.
 
 ## Get, change and delete
 

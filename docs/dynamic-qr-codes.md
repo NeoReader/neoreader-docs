@@ -14,6 +14,7 @@ QR image  ->  https://neoreader.com/q/k7Xp2m  ->  https://example.com/menu
 ## Why use the API for it
 
 - **Change a destination without reprinting.** `PATCH /codes/{slug}` with a new `destination`. Menus, posters, packaging and business cards stay in use.
+- **Open a page instead of a link.** Set `type` to `card`, `links`, `menu`, `pdf`, `location`, `app` or `video` and NeoReader hosts a mobile page at the same short link. See [Hosted pages](codes.md#hosted-pages). Pages that need an uploaded file are made in the account area.
 - **Schedule and limit.** Set `starts_at`, `expires_at` and `scan_limit` so a code works only when you want it to.
 - **Protect it.** Add a `password` that scanners have to enter.
 - **Tag it.** Add `utm` values that are appended to the destination on every scan.

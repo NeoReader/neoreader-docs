@@ -4,6 +4,19 @@ What changed in the NeoReader API and AI assistant connector, newest first.
 
 ## 2026-11-16
 
+### Hosted pages: type and content
+
+*API and MCP server*
+
+A code can now open a page NeoReader hosts instead of redirecting.
+
+- `type` is `url` (the default) or `pdf`, `card`, `links`, `menu`, `location`, `app`, `gallery` or `video`. `content` holds the page fields, and `destination` is `null` for a hosted page.
+- `POST /codes` needs `destination` only for type `url`. `PATCH /codes/{slug}` can change the type and the content; only the content fields you send change, and the printed code stays the same.
+- `GET /codes` takes a `type` filter, and `list_codes` does too.
+- `create_code` and `update_code` accept `type` and `content`.
+- Files (a PDF upload, gallery pictures, a card photo, a page logo) are added in the account area. The API and MCP server cannot create a `gallery`, and they keep the files a page already has.
+- See [Hosted pages](docs/codes.md#hosted-pages).
+
 ### Sign in with OAuth: connect Claude and ChatGPT
 
 *MCP server*
